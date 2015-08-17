@@ -9,25 +9,27 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.couchbase.config.AbstractCouchbaseConfiguration;
-import org.springframework.data.couchbase.core.convert.CustomConversions;
+import org.springframework.data.couchbase.core.CouchbaseTemplate;
 import org.springframework.data.couchbase.core.convert.MappingCouchbaseConverter;
+import org.springframework.data.couchbase.core.mapping.CouchbaseDocument;
 import org.springframework.data.couchbase.repository.config.EnableCouchbaseRepositories;
+import org.springframework.data.mapping.model.MappingException;
 
 /**
  * Created by v.kapustin on Aug 14, 2015.
  */
 @Configuration
-@PropertySource({ "classpath:couchbase.properties" })
+@PropertySource("classpath:couchbase.properties")
 @EnableCouchbaseRepositories("com.kapustin.couchbase.repository")
 public class CouchbaseConfiguration extends AbstractCouchbaseConfiguration {
 
-	@Value("${host}")
+	@Value("${couchbase.host}")
 	private String host;
 	
-	@Value("${bucket.name}")
+	@Value("${couchbase.bucket.name}")
 	private String bucketName;
 	
-	@Value("${bucket.password}")
+	@Value("${couchbase.bucket.password}")
 	private String bucketPassword;
 	
 	@Override
@@ -43,18 +45,27 @@ public class CouchbaseConfiguration extends AbstractCouchbaseConfiguration {
 	@Override
 	protected String getBucketPassword() {
 		return bucketPassword;
-	}
+	}	
 
-	@Bean
-	public PropertySourcesPlaceholderConfigurer getPropertySourcesPlaceholderConfigurer() {
-        return new PropertySourcesPlaceholderConfigurer();
-    }
-	
-	@Bean
 	public MappingCouchbaseConverter mappingCouchbaseConverter() throws Exception {
-		MappingCouchbaseConverter converter = new MappingCouchbaseConverter(couchbaseMappingContext(), typeKey());
-		converter.setCustomConversions(new CustomConversions(new List<E>(new ) {
-		}));
+		MappingCouchbaseConverter converter = new MappingCouchbaseConverter(couchbaseMappingContext(), typeKey()) {
+
+			@Override
+			public void write(Object source, CouchbaseDocument target) {
+				try {
+					super.write(source, target);
+				} catch (MappingException ex) {
+					if (target.getId() == null) {
+						target.setId(Long.toString(this.applicationContext.getBean(CouchbaseTemplate.class)
+								.getCouchbaseBucket().counter("DOCUMENT_ID", 1, 1).content()));
+					} else {
+						throw ex;
+					}
+				}
+			}
+		};
+
+		converter.setCustomConversions(customConversions());
 		return converter;
 	}
 }
