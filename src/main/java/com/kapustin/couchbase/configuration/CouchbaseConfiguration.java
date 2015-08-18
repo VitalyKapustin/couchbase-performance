@@ -4,14 +4,13 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.data.couchbase.config.AbstractCouchbaseConfiguration;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
 import org.springframework.data.couchbase.core.convert.MappingCouchbaseConverter;
 import org.springframework.data.couchbase.core.mapping.CouchbaseDocument;
+import org.springframework.data.couchbase.core.view.Consistency;
 import org.springframework.data.couchbase.repository.config.EnableCouchbaseRepositories;
 import org.springframework.data.mapping.model.MappingException;
 
@@ -25,27 +24,27 @@ public class CouchbaseConfiguration extends AbstractCouchbaseConfiguration {
 
 	@Value("${couchbase.host}")
 	private String host;
-	
+
 	@Value("${couchbase.bucket.name}")
 	private String bucketName;
-	
+
 	@Value("${couchbase.bucket.password}")
 	private String bucketPassword;
-	
+
 	@Override
-	protected List<String> getBootstrapHosts() {		
+	protected List<String> getBootstrapHosts() {
 		return Collections.singletonList(host);
 	}
 
 	@Override
-	protected String getBucketName() {		
+	protected String getBucketName() {
 		return bucketName;
 	}
 
 	@Override
 	protected String getBucketPassword() {
 		return bucketPassword;
-	}	
+	}
 
 	public MappingCouchbaseConverter mappingCouchbaseConverter() throws Exception {
 		MappingCouchbaseConverter converter = new MappingCouchbaseConverter(couchbaseMappingContext(), typeKey()) {
@@ -67,5 +66,10 @@ public class CouchbaseConfiguration extends AbstractCouchbaseConfiguration {
 
 		converter.setCustomConversions(customConversions());
 		return converter;
+	}
+
+	@Override
+	protected Consistency getDefaultConsistency() {
+		return Consistency.STRONGLY_CONSISTENT;
 	}
 }

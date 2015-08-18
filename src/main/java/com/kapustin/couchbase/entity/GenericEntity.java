@@ -2,7 +2,7 @@ package com.kapustin.couchbase.entity;
 
 import java.io.Serializable;
 
-import org.springframework.data.annotation.Id;
+import com.couchbase.client.java.repository.annotation.Id;
 
 public abstract class GenericEntity implements Serializable {
 
