@@ -27,4 +27,10 @@ public class TransactionGenerator {
 		
 		return transaction;
 	}
+	
+	public static Transaction generateTransaction(int size) {
+		Transaction transaction = new Transaction();
+		transaction.setData(new byte[size]);
+		return transaction;
+	}
 }
