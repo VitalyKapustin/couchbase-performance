@@ -2,9 +2,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StopWatch;
 
 import com.kapustin.couchbase.configuration.ApplicationContextProvider;
-import com.kapustin.couchbase.entity.Transaction;
-import com.kapustin.couchbase.repository.TransactionRepository;
-import com.kapustin.couchbase.utils.TransactionGenerator;
+import com.kapustin.couchbase.entity.Transaction1;
+import com.kapustin.couchbase.repository.Transaction1Repository;
+import com.kapustin.couchbase.utils.Transaction1Generator;
 
 /**
  * Created by v.kapustin on Aug 18, 2015.
@@ -12,7 +12,7 @@ import com.kapustin.couchbase.utils.TransactionGenerator;
 public class PerformanceMain {
 
 	@Autowired
-	private TransactionRepository transactionRepository;
+	private Transaction1Repository transactionRepository;
 
 	public static void main(String[] args) {
 		PerformanceMain PerformanceMain = new PerformanceMain();
