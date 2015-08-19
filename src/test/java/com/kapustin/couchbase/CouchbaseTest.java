@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.FixMethodOrder;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
@@ -38,14 +39,15 @@ import com.kapustin.couchbase.utils.TransactionGenerator;
 public class CouchbaseTest {
 
 	private final static int COUNT = 50000;
-	Random rnd = new Random(COUNT);
+	Random rnd = new Random();
 	
 	@Autowired
 	private TransactionRepository transactionRepository;	
 	
-	@Test	
+	@Test
+	@Ignore
 	public void stage1OneBulkInsertTest() throws InterruptedException {
-		System.out.println("------------------- oneBulkInsertTest -------------------");
+		System.out.println("------------------- stage1OneBulkInsertTest -------------------");
 		List<Transaction> transactions = new ArrayList<>(COUNT);		
 		for (int i = 0; i < COUNT; i++) {			
 			Transaction transaction = TransactionGenerator.generateTransaction();		
@@ -55,12 +57,13 @@ public class CouchbaseTest {
 		stopWatch.start();
 		transactionRepository.save(transactions);
 		stopWatch.stop();						
-		System.out.println(new StringBuilder("insert bulk of ").append(COUNT).append(" transactions write time: ").append(stopWatch.getLastTaskTimeMillis()));
+		System.out.println(new StringBuilder("insert bulk of ").append(COUNT).append(" transactions write time: ").append(stopWatch.getTotalTimeMillis()));
 	}
 	
-	@Test	
+	@Test
+	@Ignore
 	public void stage2LoopInsertTest() {
-		System.out.println("------------------- loopInsertTest -------------------");
+		System.out.println("------------------- stage2LoopInsertTest -------------------");
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		for (int i = 0; i < COUNT; i++) {		
@@ -72,8 +75,9 @@ public class CouchbaseTest {
 	}
 	
 	@Test	
-	public void stage3LookupByRandomTransactionId() {
-		System.out.println("------------------- lookupByRandomTransactionId -------------------");		
+	@Ignore
+	public void stage3LookupByRandomTransactionIdTest() {
+		System.out.println("------------------- stage3LookupByRandomTransactionIdTest -------------------");		
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		for (int i = 0; i < COUNT; i++) {		
@@ -84,8 +88,9 @@ public class CouchbaseTest {
 	}
 	
 	@Test	
-	public void stage4LookupByRandomTransactionIdIn10Threads() {
-		System.out.println("------------------- lookupByRandomTransactionIdIn10Threads -------------------");
+	@Ignore
+	public void stage4LookupByRandomTransactionIdIn10ThreadsTest() {
+		System.out.println("------------------- stage4LookupByRandomTransactionIdIn10ThreadsTest -------------------");
 		Map<Integer, Double> times = new ConcurrentHashMap<>();
 		
 		ExecutorService taskExecutor = Executors.newFixedThreadPool(10);	
@@ -104,8 +109,9 @@ public class CouchbaseTest {
 	}
 	
 	@Test	
-	public void stage5ThreeThreadsInParalel() {
-		System.out.println("------------------- ThreeThreadsInParalel -------------------");
+	@Ignore
+	public void stage5ThreeThreadsInParalelTest() {
+		System.out.println("------------------- stage5ThreeThreadsInParalelTest -------------------");
 		Map<Integer, Double> times = new ConcurrentHashMap<>();
 		
 		ExecutorService taskExecutor = Executors.newFixedThreadPool(3);		
@@ -124,8 +130,9 @@ public class CouchbaseTest {
 	}
 	
 	@Test	
-	public void stage6DeleteByRandomTransactionId() {
-		System.out.println("------------------- deleteByRandomTransactionId -------------------");		
+	@Ignore
+	public void stage6DeleteByRandomTransactionIdTest() {
+		System.out.println("------------------- stage6DeleteByRandomTransactionIdTest -------------------");		
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		for (int i = 0; i < COUNT; i++) {
@@ -135,5 +142,42 @@ public class CouchbaseTest {
 		}		
 		stopWatch.stop();
 		System.out.println(new StringBuilder("delete by random transaction ID ").append(COUNT).append(" transactions average time: ").append((double)stopWatch.getTotalTimeMillis() / (double)COUNT));
+	}
+	
+		
+	@Test
+	public void stage7InsertIncreasingDataTest() {
+		System.out.println("------------------- stage7InsertIncreasingDataTest -------------------");
+		StopWatch stopWatch = new StopWatch();
+		for (int i = 0; i < COUNT; i++) {
+			stopWatch.start();
+			transactionRepository.save(TransactionGenerator.generateTransaction(i + 1));
+			stopWatch.stop();
+			System.out.println(new StringBuilder("insert increasing transaction - data size: ").append(i + 1).append(", time: ").append(stopWatch.getLastTaskTimeMillis()));
+		}		
+	}
+	
+	@Test
+	public void stage8LookupIncreasingDataTest() {
+		System.out.println("------------------- stage8LookupIncreasingDataTest -------------------");
+		StopWatch stopWatch = new StopWatch();
+		for (int i = 0; i < COUNT; i++) {
+			stopWatch.start();
+			Transaction transaction = transactionRepository.findOne(String.valueOf(i + 1));
+			stopWatch.stop();
+			System.out.println(new StringBuilder("lookup increasing transaction - data size: ").append(i + 1).append(", time: ").append(stopWatch.getLastTaskTimeMillis()));
+		}		
+	}
+	
+	@Test
+	public void stage9DeleteIncreasingDataTest() {
+		System.out.println("------------------- stage9DeleteIncreasingDataTest -------------------");
+		StopWatch stopWatch = new StopWatch();
+		for (int i = 0; i < COUNT; i++) {
+			stopWatch.start();
+			transactionRepository.delete(String.valueOf(i + 1));
+			stopWatch.stop();
+			System.out.println(new StringBuilder("delete increasing transaction - data size: ").append(i + 1).append(", time: ").append(stopWatch.getLastTaskTimeMillis()));
+		}		
 	}
 }

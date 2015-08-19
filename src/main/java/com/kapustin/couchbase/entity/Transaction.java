@@ -37,6 +37,9 @@ public class Transaction extends GenericEntity {
 	@Field
 	private String country;
 	
+	@Field
+	private byte[] data;
+	
 	@Override
 	public String toString() {
 		return new StringBuilder().append("transaction[id=").append(getId()).append(", account=").append(getAccount()).append(", bank=").append(getBank()).append(", date=").append(getDate()).append("]").toString();
@@ -120,5 +123,13 @@ public class Transaction extends GenericEntity {
 
 	public void setCountry(String country) {
 		this.country = country;
-	}		
+	}
+
+	public byte[] getData() {
+		return data;
+	}
+
+	public void setData(byte[] data) {
+		this.data = data;
+	}	
 }
