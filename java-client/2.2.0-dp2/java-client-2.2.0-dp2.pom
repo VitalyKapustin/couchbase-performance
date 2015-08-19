@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.couchbase.client</groupId>
+  <artifactId>java-client</artifactId>
+  <version>2.2.0-dp2</version>
+  <dependencies>
+    <dependency>
+      <groupId>com.couchbase.client</groupId>
+      <artifactId>core-io</artifactId>
+      <version>1.2.0-dp2</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.7</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.1.3</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.17</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+  <description>The official Couchbase Java SDK</description>
+  <name>Couchbase Java SDK</name>
+  <url>http://couchbase.com</url>
+  <organization>
+    <name>Couchbase, Inc.</name>
+    <url>http://couchbase.com</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <url>https://github.com/couchbase/couchbase-java-client</url>
+    <connection>scm:git:git://github.com/couchbase/couchbase-java-client</connection>
+    <developerConnection>scm:git:git://github.com/couchbase/couchbase-java-client</developerConnection>
+  </scm>
+  <issueManagement>
+    <system>Couchbase JIRA</system>
+    <url>http://www.couchbase.com/issues/browse/JCBC</url>
+  </issueManagement>
+  <developers>
+    <developer>
+      <id>daschl</id>
+      <name>Michael Nitschinger</name>
+      <email>michael.nitschinger@couchbase.com</email>
+    </developer>
+    <developer>
+      <id>simonbasle</id>
+      <name>Simon Baslé</name>
+      <email>simon@couchbase.com</email>
+    </developer>
+    <developer>
+      <id>avsej</id>
+      <name>Sergey Avseyev</name>
+      <email>sergey@couchbase.com</email>
+    </developer>
+  </developers>
+</project>
