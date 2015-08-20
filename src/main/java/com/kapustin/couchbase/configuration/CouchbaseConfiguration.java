@@ -67,9 +67,4 @@ public class CouchbaseConfiguration extends AbstractCouchbaseConfiguration {
 		converter.setCustomConversions(customConversions());
 		return converter;
 	}
-
-	@Override
-	protected Consistency getDefaultConsistency() {
-		return Consistency.STRONGLY_CONSISTENT;
-	}
 }

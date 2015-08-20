@@ -2,15 +2,24 @@ package com.kapustin.couchbase.entity;
 
 import org.springframework.data.couchbase.core.mapping.Document;
 
+import com.couchbase.client.java.repository.annotation.Field;
+
 /**
  * Created by v.kapustin on Aug 19, 2015.
  */
 @Document
 public class Transaction2 extends GenericEntity {
 
+	@Field
 	private String lookupField;
 	
-	private byte[] data;
+	@Field
+	private String data;
+	
+	@Override
+	public String toString() {		
+        return new StringBuilder("transaction[id=").append(getId()).append(", lookupField=").append(lookupField).append("]").toString();
+    }
 
 	public String getLookupField() {
 		return lookupField;
@@ -20,11 +29,11 @@ public class Transaction2 extends GenericEntity {
 		this.lookupField = lookupField;
 	}
 
-	public byte[] getData() {
+	public String getData() {
 		return data;
 	}
 
-	public void setData(byte[] data) {
+	public void setData(String data) {
 		this.data = data;
-	}	
+	}				
 }

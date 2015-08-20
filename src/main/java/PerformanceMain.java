@@ -3,7 +3,9 @@ import org.springframework.util.StopWatch;
 
 import com.kapustin.couchbase.configuration.ApplicationContextProvider;
 import com.kapustin.couchbase.entity.Transaction1;
+import com.kapustin.couchbase.entity.Transaction2;
 import com.kapustin.couchbase.repository.Transaction1Repository;
+import com.kapustin.couchbase.repository.Transaction2Repository;
 import com.kapustin.couchbase.utils.Transaction1Generator;
 
 /**
@@ -12,7 +14,7 @@ import com.kapustin.couchbase.utils.Transaction1Generator;
 public class PerformanceMain {
 
 	@Autowired
-	private Transaction1Repository transactionRepository;
+	private Transaction2Repository transactionRepository;
 
 	public static void main(String[] args) {
 		PerformanceMain PerformanceMain = new PerformanceMain();
@@ -20,9 +22,10 @@ public class PerformanceMain {
 	}
 	
 	public void run() {
-		ApplicationContextProvider.getInstance().autowireObject(this);
-		transactionRepository.deleteAll();
-		System.out.println("count: " + transactionRepository.count());		
+		ApplicationContextProvider.getInstance().autowireObject(this);		
+		Iterable<Transaction2> iterable = transactionRepository.findAll();
+//		transactionRepository.deleteAll();
+//		System.out.println("count: " + transactionRepository.count());		
 //		for (Transaction transaction : transactionRepository.findAll()) {
 //			System.out.println(transaction);
 //		}
