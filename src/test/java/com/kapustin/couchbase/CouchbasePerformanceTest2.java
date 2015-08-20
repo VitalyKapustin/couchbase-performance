@@ -116,9 +116,13 @@ public class CouchbasePerformanceTest2 {
 		
 	public void lookupUsingN1QLTest(int dataSize) {
 		System.out.println("------------------- lookupUsingN1QLTest -------------------");
+		List<String> ids = new ArrayList<>(COUNT);
+		for (int i = 0; i < COUNT; i++) {
+			ids.add(new StringBuilder("lookupField_").append(getRandomId()).toString());
+		}
 		stopWatch.start();
 		for (int i = 0; i < COUNT; i++) {			
-			List<Transaction2> transactions = transaction2Repository.lookupByLookupField(new StringBuilder("lookupField_").append(getRandomId()).toString());			
+			List<Transaction2> transactions = transaction2Repository.lookupByLookupField(ids.get(i));			
 		}
 		stopWatch.stop();
 		System.out.println(new StringBuilder("retrieve using N1QL - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
