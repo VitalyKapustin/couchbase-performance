@@ -5,7 +5,7 @@ import org.springframework.data.couchbase.core.mapping.Document;
 import com.couchbase.client.java.repository.annotation.Field;
 
 @Document
-public class Transaction extends GenericEntity {
+public class Transaction1 extends GenericEntity {
 
 	@Field
 	private String account;
@@ -35,10 +35,7 @@ public class Transaction extends GenericEntity {
 	private String region;
 	
 	@Field
-	private String country;
-	
-	@Field
-	private byte[] data;
+	private String country;	
 	
 	@Override
 	public String toString() {
@@ -123,13 +120,5 @@ public class Transaction extends GenericEntity {
 
 	public void setCountry(String country) {
 		this.country = country;
-	}
-
-	public byte[] getData() {
-		return data;
-	}
-
-	public void setData(byte[] data) {
-		this.data = data;
 	}	
 }

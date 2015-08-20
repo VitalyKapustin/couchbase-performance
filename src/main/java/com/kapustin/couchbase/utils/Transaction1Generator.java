@@ -3,15 +3,15 @@ package com.kapustin.couchbase.utils;
 import java.util.Date;
 import java.util.Random;
 
-import com.kapustin.couchbase.entity.Transaction;
+import com.kapustin.couchbase.entity.Transaction1;
 
 /**
  * Created by v.kapustin on Aug 17, 2015.
  */
-public class TransactionGenerator {
+public class Transaction1Generator {
 
-	public static Transaction generateTransaction() {
-		Transaction transaction = new Transaction();
+	public static Transaction1 generate() {
+		Transaction1 transaction = new Transaction1();
 		
 		Random rnd = new Random();		
 		transaction.setAccount("Account_" + rnd.nextLong());
@@ -26,11 +26,5 @@ public class TransactionGenerator {
 		transaction.setCountry("country_" + rnd.nextLong());
 		
 		return transaction;
-	}
-	
-	public static Transaction generateTransaction(int size) {
-		Transaction transaction = new Transaction();
-		transaction.setData(new byte[size]);
-		return transaction;
-	}
+	}	
 }
