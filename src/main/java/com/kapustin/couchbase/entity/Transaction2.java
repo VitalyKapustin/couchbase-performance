@@ -1,19 +1,25 @@
 package com.kapustin.couchbase.entity;
 
-import org.springframework.data.couchbase.core.mapping.Document;
-
-import com.couchbase.client.java.repository.annotation.Field;
+import java.io.Serializable;
 
 /**
  * Created by v.kapustin on Aug 19, 2015.
  */
-@Document
-public class Transaction2 extends GenericEntity {
+public class Transaction2 implements Serializable {
 
-	@Field
+	private static final long serialVersionUID = 1L;
+
+	private String id;
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 	private String lookupField;
 	
-	@Field
 	private byte[] data;
 	
 	@Override

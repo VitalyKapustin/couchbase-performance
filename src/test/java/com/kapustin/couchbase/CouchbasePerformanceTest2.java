@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.couchbase.client.deps.io.netty.buffer.ByteBuf;
+import com.couchbase.client.java.document.BinaryDocument;
 import com.couchbase.client.java.error.DocumentDoesNotExistException;
 import com.kapustin.couchbase.configuration.CouchbaseConfiguration;
 import com.kapustin.couchbase.configuration.SpringConfiguration;
@@ -45,31 +47,31 @@ public class CouchbasePerformanceTest2 {
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void stage2TestSuite() {
 		runTests(2, 1024 * 20);
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void stage3TestSuite() {
 		runTests(3, 1024 * 50);
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void stage4TestSuite() {
 		runTests(4, 1024 * 70);
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void stage5TestSuite() {
 		runTests(5, 1024 * 100);
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void stage6TestSuite() {
 		runTests(6, 1024 * 200);
 	}
@@ -86,8 +88,8 @@ public class CouchbasePerformanceTest2 {
 		insertTest(offset, dataSize);
 		lookupTest(offset, dataSize);
 //		lookupUsingN1QLTest(offset, dataSize);
-		updateTest(offset, dataSize);
-		deleteTest(offset, dataSize);
+//		updateTest(offset, dataSize);
+//		deleteTest(offset, dataSize);
 	}
 		
 	public void insertTest(int offset, int dataSize) {		
@@ -101,7 +103,7 @@ public class CouchbasePerformanceTest2 {
 			transaction2Repository.save(transactions.get(i));						
 		}		
 		stopWatch.stop();
-		System.out.println(new StringBuilder("insert transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
+		System.out.println(new StringBuilder("insert transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)COUNT / (double)stopWatch.getNanoTime()));
 		stopWatch.reset();
 	}	
 	
@@ -116,57 +118,89 @@ public class CouchbasePerformanceTest2 {
 			Transaction2 transaction = transaction2Repository.findOne(ids.get(i));
 		}
 		stopWatch.stop();
-		System.out.println(new StringBuilder("lookup transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
+		System.out.println(new StringBuilder("lookup transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)COUNT / (double)stopWatch.getNanoTime()));
 		stopWatch.reset();
 	}
-		
-	public void lookupUsingN1QLTest(int offset, int dataSize) {
-		System.out.println("------------------- lookupUsingN1QLTest -------------------");
-		List<String> ids = new ArrayList<>(COUNT);
+	
+//	public void updateTest(int offset, int dataSize) {
+//		System.out.println("------------------- updateTest -------------------");
+//		List<Transaction2> transactions = new ArrayList<>(COUNT);
+//		for (int i = 0; i < COUNT; i++) {
+//			transactions.add(Transaction2Generator.generate(offset, i, dataSize));
+//		}
+//		stopWatch.start();
+//		for (int i = 0; i < COUNT; i++) {		
+//			Transaction2 transaction = transactions.get(i);
+//			transaction.setId(getRandomId(offset));
+//			transaction2Repository.save(transaction);
+//		}		
+//		stopWatch.stop();
+//		System.out.println(new StringBuilder("update transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
+//		stopWatch.reset();
+//	}
+	
+	public void insertBinaryTest(int offset, int dataSize) {		
+		System.out.println("------------------- insertTest -------------------");
+		List<ByteBuf> transactions = new ArrayList<>(COUNT);
 		for (int i = 0; i < COUNT; i++) {
-			ids.add(new StringBuilder("lookupField_").append(getRandomId(offset)).toString());
+			transactions.add(Transaction2Generator.generate(dataSize));
 		}
 		stopWatch.start();
 		for (int i = 0; i < COUNT; i++) {			
-			List<Transaction2> transactions = transaction2Repository.lookupByLookupField(ids.get(i));			
+			transaction2Repository.save(transactions.get(i));						
+		}		
+		stopWatch.stop();
+		System.out.println(new StringBuilder("insert transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)COUNT / (double)stopWatch.getNanoTime()));
+		stopWatch.reset();
+	}	
+	
+	public void lookupBinaryTest(int offset, int dataSize) {
+		System.out.println("------------------- lookupTest -------------------");	
+		List<String> ids = new ArrayList<>(COUNT);
+		for (int i = 0; i < COUNT; i++) {
+			ids.add(getRandomId(offset));
+		}
+		stopWatch.start();
+		for (int i = 0; i < COUNT; i++) {			
+			BinaryDocument transaction = transaction2Repository.findBuff(ids.get(i));
 		}
 		stopWatch.stop();
-		System.out.println(new StringBuilder("retrieve using N1QL - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
+		System.out.println(new StringBuilder("lookup transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)COUNT / (double)stopWatch.getNanoTime()));
 		stopWatch.reset();
 	}
 	
-	public void updateTest(int offset, int dataSize) {
-		System.out.println("------------------- updateTest -------------------");
-		List<Transaction2> transactions = new ArrayList<>(COUNT);
-		for (int i = 0; i < COUNT; i++) {
-			transactions.add(Transaction2Generator.generate(offset, i, dataSize));
-		}
-		stopWatch.start();
-		for (int i = 0; i < COUNT; i++) {		
-			Transaction2 transaction = transactions.get(i);
-			transaction.setId(getRandomId(offset));
-			transaction2Repository.save(transaction);
-		}		
-		stopWatch.stop();
-		System.out.println(new StringBuilder("update transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
-		stopWatch.reset();
-	}
+//	public void updateBinaryTest(int offset, int dataSize) {
+//		System.out.println("------------------- updateTest -------------------");
+//		List<ByteBuf> transactions = new ArrayList<>(COUNT);
+//		for (int i = 0; i < COUNT; i++) {
+//			transactions.add(Transaction2Generator.generate(dataSize));
+//		}
+//		stopWatch.start();
+//		for (int i = 0; i < COUNT; i++) {		
+//			BinaryDocument transaction = transactions.get(i);
+//			transaction.id().setId( getRandomId(offset));
+//			transaction2Repository.save(transaction);
+//		}		
+//		stopWatch.stop();
+//		System.out.println(new StringBuilder("update transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
+//		stopWatch.reset();
+//	}
 	
-	public void deleteTest(int offset, int dataSize) {
-		System.out.println("------------------- deleteTest -------------------");
-		stopWatch.start();
-		for (int i = 0; i < COUNT; i++) {
-			String id = getRandomId(offset);
-			try {
-				transaction2Repository.delete(id);
-			} catch (DocumentDoesNotExistException ex) { }
-		}		
-		stopWatch.stop();
-		System.out.println(new StringBuilder("delete transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
-		stopWatch.reset();
-	}
+//	public void deleteTest(int offset, int dataSize) {
+//		System.out.println("------------------- deleteTest -------------------");
+//		stopWatch.start();
+//		for (int i = 0; i < COUNT; i++) {
+//			String id = getRandomId(offset);
+//			try {
+//				transaction2Repository.delete(id);
+//			} catch (DocumentDoesNotExistException ex) { }
+//		}		
+//		stopWatch.stop();
+//		System.out.println(new StringBuilder("delete transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
+//		stopWatch.reset();
+//	}
 	
 	private String getRandomId(int offset) {
-		return String.valueOf(rnd.nextInt(COUNT) + 1 + offset);
+		return String.valueOf(rnd.nextInt(COUNT) + 1);// + offset);
 	}
 }
