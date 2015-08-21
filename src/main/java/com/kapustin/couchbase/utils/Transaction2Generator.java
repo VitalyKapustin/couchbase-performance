@@ -1,5 +1,7 @@
 package com.kapustin.couchbase.utils;
 
+import java.util.UUID;
+
 import com.couchbase.client.deps.io.netty.buffer.ByteBuf;
 import com.couchbase.client.deps.io.netty.buffer.Unpooled;
 import com.kapustin.couchbase.entity.Transaction2;
@@ -10,7 +12,7 @@ import com.kapustin.couchbase.entity.Transaction2;
 public class Transaction2Generator {
 		
 	private static byte[] data;
-
+	
 	public static Transaction2 generate(int offset, int index, int dataSize) {		
 		Transaction2 transaction = new Transaction2();	
 		transaction.setLookupField(new StringBuilder("lookupField_").append(offset + index + 1).toString());		
@@ -20,6 +22,7 @@ public class Transaction2Generator {
 				data[i] = 127;
 			}
 		}
+		transaction.setId(UUID.randomUUID().toString());
 		transaction.setData(data);
 		return transaction;
 	}
