@@ -1,18 +1,21 @@
 package com.kapustin.couchbase.configuration;
 
+import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.data.couchbase.config.AbstractCouchbaseConfiguration;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
 import org.springframework.data.couchbase.core.convert.MappingCouchbaseConverter;
 import org.springframework.data.couchbase.core.mapping.CouchbaseDocument;
-import org.springframework.data.couchbase.core.view.Consistency;
 import org.springframework.data.couchbase.repository.config.EnableCouchbaseRepositories;
 import org.springframework.data.mapping.model.MappingException;
+
+import com.kapustin.couchbase.entity.Transaction2;
 
 /**
  * Created by v.kapustin on Aug 14, 2015.
@@ -60,6 +63,23 @@ public class CouchbaseConfiguration extends AbstractCouchbaseConfiguration {
 					} else {
 						throw ex;
 					}
+				}
+			}
+			
+	
+			@Override
+			public <R> R read(Class<R> clazz, CouchbaseDocument source) {
+				try {
+					return super.read(clazz, source);
+				} catch (ConversionFailedException ex) {
+					if (source.get("_class").equals("com.kapustin.couchbase.entity.Transaction2")) {
+						Transaction2 transaction = new Transaction2();
+						transaction.setId(source.getId());
+						transaction.setLookupField(source.get("lookupField").toString());
+						transaction.setData(Base64.getDecoder().decode(source.get("data").toString().getBytes()));
+						return (R) transaction;
+					}
+					throw ex;
 				}
 			}
 		};

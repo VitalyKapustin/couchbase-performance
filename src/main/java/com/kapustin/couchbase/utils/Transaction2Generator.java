@@ -9,17 +9,16 @@ import com.kapustin.couchbase.entity.Transaction2;
  * Created by v.kapustin on Aug 19, 2015.
  */
 public class Transaction2Generator {
+	
+	private static byte[] data;
 
-	public static Transaction2 generate(int index, int dataSize) {
+	public static Transaction2 generate(int offset, int index, int dataSize) {
 		Transaction2 transaction = new Transaction2();	
-		transaction.setLookupField(new StringBuilder("lookupField_").append(index + 1).toString());
-		Random rnd = new Random();
-		String abc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		StringBuilder sb = new StringBuilder(dataSize / 2);
-		for (int i = 0; i < dataSize / 2; i++) {
-			sb.append(abc.charAt(rnd.nextInt(26)));			
-		}		
-		transaction.setData(sb.toString());
+		transaction.setLookupField(new StringBuilder("lookupField_").append(offset + index + 1).toString());		
+		if (data == null || (data != null && data.length < dataSize)) {
+			data = new byte[dataSize];
+		}
+		transaction.setData(data);
 		return transaction;
 	}	
 }

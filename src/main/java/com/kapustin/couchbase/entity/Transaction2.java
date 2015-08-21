@@ -14,7 +14,7 @@ public class Transaction2 extends GenericEntity {
 	private String lookupField;
 	
 	@Field
-	private String data;
+	private byte[] data;
 	
 	@Override
 	public String toString() {		
@@ -29,11 +29,11 @@ public class Transaction2 extends GenericEntity {
 		this.lookupField = lookupField;
 	}
 
-	public String getData() {
+	public byte[] getData() {
 		return data;
 	}
 
-	public void setData(String data) {
+	public void setData(byte[] data) {
 		this.data = data;
 	}				
 }

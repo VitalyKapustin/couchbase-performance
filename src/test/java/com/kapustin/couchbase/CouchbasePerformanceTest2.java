@@ -29,7 +29,7 @@ import com.kapustin.couchbase.utils.Transaction2Generator;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CouchbasePerformanceTest2 {
 	
-	private final static int COUNT = 10000;
+	private final static int COUNT = 5000;
 	
 	private final StopWatch stopWatch = new StopWatch();
 	
@@ -39,60 +39,62 @@ public class CouchbasePerformanceTest2 {
 	private Transaction2Repository transaction2Repository;
 	
 	@Test
+//	@Ignore
 	public void stage1TestSuite() {
 		runTests(1, 1024);
 	}
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void stage2TestSuite() {
-		runTests(1, 1024 * 20);
+		runTests(2, 1024 * 20);
 	}
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void stage3TestSuite() {
-		runTests(1, 1024 * 50);
+		runTests(3, 1024 * 50);
 	}
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void stage4TestSuite() {
-		runTests(1, 1024 * 70);
+		runTests(4, 1024 * 70);
 	}
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void stage5TestSuite() {
-		runTests(1, 1024 * 100);
+		runTests(5, 1024 * 100);
 	}
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void stage6TestSuite() {
-		runTests(1, 1024 * 200);
+		runTests(6, 1024 * 200);
 	}
 	
 	@Test
 	@Ignore
 	public void stage7TestSuite() {
-		runTests(1, 1024 * 500);
+		runTests(7, 1024 * 500);
 	}
 	
 	private void runTests(int stageNum, int dataSize) {
 		System.out.println("------------------- stage" + stageNum + "TestSuite -------------------");
-		insertTest(dataSize);
-		lookupTest(dataSize);
-		lookupUsingN1QLTest(dataSize);
-		updateTest(dataSize);
-		deleteTest(dataSize);
+		int offset = (stageNum - 1) * COUNT;
+		insertTest(offset, dataSize);
+		lookupTest(offset, dataSize);
+//		lookupUsingN1QLTest(offset, dataSize);
+		updateTest(offset, dataSize);
+		deleteTest(offset, dataSize);
 	}
 		
-	public void insertTest(int dataSize) {		
+	public void insertTest(int offset, int dataSize) {		
 		System.out.println("------------------- insertTest -------------------");
 		List<Transaction2> transactions = new ArrayList<>(COUNT);
 		for (int i = 0; i < COUNT; i++) {
-			transactions.add(Transaction2Generator.generate(i, dataSize));
+			transactions.add(Transaction2Generator.generate(offset, i, dataSize));
 		}
 		stopWatch.start();
 		for (int i = 0; i < COUNT; i++) {			
@@ -103,22 +105,26 @@ public class CouchbasePerformanceTest2 {
 		stopWatch.reset();
 	}	
 	
-	public void lookupTest(int dataSize) {
-		System.out.println("------------------- lookupTest -------------------");		
+	public void lookupTest(int offset, int dataSize) {
+		System.out.println("------------------- lookupTest -------------------");	
+		List<String> ids = new ArrayList<>(COUNT);
+		for (int i = 0; i < COUNT; i++) {
+			ids.add(getRandomId(offset));
+		}
 		stopWatch.start();
 		for (int i = 0; i < COUNT; i++) {			
-			Transaction2 transaction = transaction2Repository.findOne(getRandomId());						
+			Transaction2 transaction = transaction2Repository.findOne(ids.get(i));
 		}
 		stopWatch.stop();
 		System.out.println(new StringBuilder("lookup transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
 		stopWatch.reset();
 	}
 		
-	public void lookupUsingN1QLTest(int dataSize) {
+	public void lookupUsingN1QLTest(int offset, int dataSize) {
 		System.out.println("------------------- lookupUsingN1QLTest -------------------");
 		List<String> ids = new ArrayList<>(COUNT);
 		for (int i = 0; i < COUNT; i++) {
-			ids.add(new StringBuilder("lookupField_").append(getRandomId()).toString());
+			ids.add(new StringBuilder("lookupField_").append(getRandomId(offset)).toString());
 		}
 		stopWatch.start();
 		for (int i = 0; i < COUNT; i++) {			
@@ -129,16 +135,16 @@ public class CouchbasePerformanceTest2 {
 		stopWatch.reset();
 	}
 	
-	public void updateTest(int dataSize) {
+	public void updateTest(int offset, int dataSize) {
 		System.out.println("------------------- updateTest -------------------");
 		List<Transaction2> transactions = new ArrayList<>(COUNT);
 		for (int i = 0; i < COUNT; i++) {
-			transactions.add(Transaction2Generator.generate(i, dataSize));
+			transactions.add(Transaction2Generator.generate(offset, i, dataSize));
 		}
 		stopWatch.start();
 		for (int i = 0; i < COUNT; i++) {		
 			Transaction2 transaction = transactions.get(i);
-			transaction.setId(getRandomId());
+			transaction.setId(getRandomId(offset));
 			transaction2Repository.save(transaction);
 		}		
 		stopWatch.stop();
@@ -146,11 +152,11 @@ public class CouchbasePerformanceTest2 {
 		stopWatch.reset();
 	}
 	
-	public void deleteTest(int dataSize) {
+	public void deleteTest(int offset, int dataSize) {
 		System.out.println("------------------- deleteTest -------------------");
 		stopWatch.start();
 		for (int i = 0; i < COUNT; i++) {
-			String id = getRandomId();
+			String id = getRandomId(offset);
 			try {
 				transaction2Repository.delete(id);
 			} catch (DocumentDoesNotExistException ex) { }
@@ -160,7 +166,7 @@ public class CouchbasePerformanceTest2 {
 		stopWatch.reset();
 	}
 	
-	private String getRandomId() {
-		return String.valueOf(rnd.nextInt(COUNT) + 1);
+	private String getRandomId(int offset) {
+		return String.valueOf(rnd.nextInt(COUNT) + 1 + offset);
 	}
 }
