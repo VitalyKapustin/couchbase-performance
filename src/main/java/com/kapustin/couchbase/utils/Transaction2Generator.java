@@ -11,15 +11,15 @@ import com.kapustin.couchbase.entity.Transaction2;
  */
 public class Transaction2Generator {
 		
-	private static byte[] data;
+	private static String[] data;
+	private static byte[] byteData;
 	
 	public static Transaction2 generate(int offset, int index, int dataSize) {		
-		Transaction2 transaction = new Transaction2();	
-		transaction.setLookupField(new StringBuilder("lookupField_").append(offset + index + 1).toString());		
-		if (data == null || (data != null && data.length < dataSize)) {
-			data = new byte[dataSize];
-			for (int i = 0; i < dataSize; i++) {
-				data[i] = 127;
+		Transaction2 transaction = new Transaction2();				
+		if (data == null || (data != null && data.length < dataSize / 2)) {
+			data = new String[dataSize / 2];
+			for (int i = 0; i < dataSize / 2; i++) {
+				data[i] = "b";
 			}
 		}
 		transaction.setId(UUID.randomUUID().toString());
@@ -28,12 +28,12 @@ public class Transaction2Generator {
 	}
 	
 	public static ByteBuf generate(int dataSize) {
-		if (data == null || (data != null && data.length < dataSize)) {
-			data = new byte[dataSize];
+		if (byteData == null || (byteData != null && byteData.length < dataSize)) {
+			byteData = new byte[dataSize];
 			for (int i = 0; i < dataSize; i++) {
-				data[i] = 127;
+				byteData[i] = 127;
 			}			
 		}
-		return Unpooled.copiedBuffer(data);
+		return Unpooled.copiedBuffer(byteData);
 	}
 }

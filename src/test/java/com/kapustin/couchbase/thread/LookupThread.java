@@ -1,3 +1,4 @@
+package com.kapustin.couchbase.thread;
 //package com.kapustin.couchbase.Thread;
 //
 //import java.util.Map;

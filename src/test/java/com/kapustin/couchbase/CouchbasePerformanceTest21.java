@@ -1,8 +1,9 @@
 package com.kapustin.couchbase;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.FixMethodOrder;
@@ -14,15 +15,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.couchbase.client.deps.io.netty.buffer.ByteBuf;
-import com.couchbase.client.java.document.BinaryDocument;
 import com.kapustin.couchbase.configuration.CouchbaseConfiguration;
 import com.kapustin.couchbase.configuration.SpringConfiguration;
-import com.kapustin.couchbase.entity.Transaction2;
 import com.kapustin.couchbase.repository.Transaction2OneBucketRepository;
-import com.kapustin.couchbase.repository.Transaction2Repository;
 import com.kapustin.couchbase.repository.Transaction2TwoBucketRepository;
-import com.kapustin.couchbase.utils.Transaction2Generator;
+import com.kapustin.couchbase.thread.test21.InsertThread;
+import com.kapustin.couchbase.thread.test21.LookupThread;
 
 /**
  * Created by v.kapustin on Aug 19, 2015.
@@ -42,7 +40,7 @@ public class CouchbasePerformanceTest21 {
 	private Transaction2OneBucketRepository transaction2OneBucketRepository;
 	
 	@Autowired
-	private Transaction2TwoBucketRepository transaction2TwoBucketRepository;
+	private Transaction2TwoBucketRepository transaction2TwoBucketRepository;	
 	
 	@Test
 //	@Ignore
@@ -66,65 +64,44 @@ public class CouchbasePerformanceTest21 {
 		System.out.println("------------------- stage" + stageNum + "TestSuite -------------------");
 		int offset = (stageNum - 1) * COUNT;
 		try {
-//			insertLookupTest(offset, dataSize);
-			insertLookupBinaryTest(offset, dataSize);
+			prepareDB(COUNT / 2, dataSize);
+			insertLookupUsingOneBucketTest(dataSize);
+//			insertLookupUsingTwoBucketsTest(dataSize);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}		
 	
-	public void insertLookupTest(int offset, int dataSize) throws InterruptedException {
-		System.out.println("------------------- insertTest -------------------");
-		List<Transaction2> transactions = new ArrayList<>(COUNT);
-		for (int i = 0; i < COUNT; i++) {
-			transactions.add(Transaction2Generator.generate(offset, i, dataSize));
-		}		
-		stopWatch.start();
-		for (int i = 0; i < COUNT; i++) {			
-			transaction2OneBucketRepository.save(transactions.get(i));						
-		}		
-		stopWatch.stop();
-		System.out.println(new StringBuilder("insert transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
-		stopWatch.reset();
-		Thread.currentThread().sleep(30000);
-		
-		System.out.println("------------------- lookupTest -------------------");				
-		stopWatch.start();
-		for (int i = 0; i < COUNT; i++) {			
-			Transaction2 transaction = transaction2Repository.findOne(transactions.get(i).getId());
-		}
-		stopWatch.stop();
-		System.out.println(new StringBuilder("lookup transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
-		stopWatch.reset();
+	private void prepareDB(int count, int dataSize) {
+		InsertThread insertThread = new InsertThread(COUNT / 2, dataSize, 1, transaction2OneBucketRepository, null);
+		ExecutorService taskExecutor = Executors.newFixedThreadPool(1);
+		taskExecutor.execute(insertThread);
+		taskExecutor.shutdown();
+		try {
+			taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.HOURS);
+			System.out.println("preapareDB is finished");
+		} catch (InterruptedException e) { }
 	}
 	
-	public void insertLookupBinaryTest(int offset, int dataSize) throws InterruptedException {
-		System.out.println("------------------- insertTest -------------------");
-		List<ByteBuf> transactions = new ArrayList<ByteBuf>(COUNT);
-		for (int i = 0; i < COUNT; i++) {
-			transactions.add(Transaction2Generator.generate(dataSize));
-		}
-		List<String> ids = new ArrayList<>(COUNT);
-		stopWatch.start();
-		for (int i = 0; i < COUNT; i++) {			
-			ids.add(transaction2Repository.save(transactions.get(i)));						
-		}		
-		stopWatch.stop();
-		System.out.println(new StringBuilder("insert transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));		
-		stopWatch.reset();
-		Thread.currentThread().sleep(30000);
-		
-		System.out.println("------------------- lookupTest -------------------");			
-		stopWatch.start();
-		for (int i = 0; i < COUNT; i++) {			
-			BinaryDocument transaction = transaction2Repository.findBuff(ids.get(i));
-		}
-		stopWatch.stop();
-		System.out.println(new StringBuilder("lookup transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
-		stopWatch.reset();
+	public void insertLookupUsingOneBucketTest(int dataSize) throws InterruptedException {
+		System.out.println("------------------- insertLookupUsingOneBucketTest -------------------");
+		LookupThread lookupThread = new LookupThread(COUNT / 2, 1, transaction2OneBucketRepository, null);
+		InsertThread insertThread = new InsertThread(COUNT / 2, dataSize, COUNT / 2, transaction2OneBucketRepository, null);
+		ExecutorService taskExecutor = Executors.newFixedThreadPool(2);
+		taskExecutor.execute(lookupThread);
+		taskExecutor.execute(insertThread);
+		taskExecutor.shutdown();
+		taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.HOURS);
 	}
 	
-	private String getRandomId(int offset) {
-		return String.valueOf(rnd.nextInt(COUNT) + 1);// + offset);
+	public void insertLookupUsingTwoBucketsTest(int dataSize) throws InterruptedException {
+		System.out.println("------------------- insertLookupUsingTwoBucketsTest -------------------");
+		LookupThread lookupThread = new LookupThread(COUNT / 2, 1, transaction2OneBucketRepository,transaction2TwoBucketRepository);
+		InsertThread insertThread = new InsertThread(COUNT / 2, dataSize, COUNT / 2, transaction2OneBucketRepository, transaction2TwoBucketRepository);
+		ExecutorService taskExecutor = Executors.newFixedThreadPool(2);
+		taskExecutor.execute(lookupThread);
+		taskExecutor.execute(insertThread);
+		taskExecutor.shutdown();
+		taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.HOURS);
 	}
 }

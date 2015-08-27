@@ -1,4 +1,4 @@
-package com.kapustin.couchbase.Thread;
+package com.kapustin.couchbase.thread;
 
 /**
  * Created by v.kapustin on Aug 19, 2015.

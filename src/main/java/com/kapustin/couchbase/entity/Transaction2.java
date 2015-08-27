@@ -17,29 +17,20 @@ public class Transaction2 implements Serializable {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-	private String lookupField;
+	}	
 	
-	private byte[] data;
+	private String[] data;
 	
 	@Override
 	public String toString() {		
-        return new StringBuilder("transaction[id=").append(getId()).append(", lookupField=").append(lookupField).append("]").toString();
+        return new StringBuilder("transaction[id=").append(getId()).append("]").toString();
     }
 
-	public String getLookupField() {
-		return lookupField;
-	}
-
-	public void setLookupField(String lookupField) {
-		this.lookupField = lookupField;
-	}
-
-	public byte[] getData() {
+	public String[] getData() {
 		return data;
 	}
 
-	public void setData(byte[] data) {
+	public void setData(String[] data) {
 		this.data = data;
 	}				
 }
