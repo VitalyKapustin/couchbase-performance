@@ -31,8 +31,15 @@ public class CouchbaseConfiguration extends AbstractCouchbaseConfiguration {
 	@Value("${couchbase.bucket.password}")
 	private String bucketPassword;
 
-	@Bean
-	public Bucket getBucket() {
+	@Bean(name = "lookupBucket")
+	public Bucket getLookupBucket() {
+		Cluster cluster = CouchbaseCluster.create(host);
+		Bucket bucket = cluster.openBucket(bucketName, bucketPassword);
+		return bucket;
+	}
+	
+	@Bean(name = "saveBucket")
+	public Bucket getSaveBucket() {
 		Cluster cluster = CouchbaseCluster.create(host);
 		Bucket bucket = cluster.openBucket(bucketName, bucketPassword);
 		return bucket;

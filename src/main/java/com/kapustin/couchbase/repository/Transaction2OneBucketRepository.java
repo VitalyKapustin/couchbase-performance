@@ -16,15 +16,11 @@ import com.kapustin.couchbase.entity.Transaction2;
  * Created by v.kapustin on Aug 19, 2015.
  */
 @Component
-public class Transaction2Repository {
-	
-	@Autowired
-	@Qualifier("lookupBucket")
-	private Bucket lookupBucket;
+public class Transaction2OneBucketRepository {
 	
 	@Autowired
 	@Qualifier("saveBucket")
-	private Bucket saveBucket;
+	private Bucket saveBucket;	
 
 	public Transaction2 save(Transaction2 doc) {
 		saveBucket.upsert(SerializableDocument.create(doc.getId(), doc));
@@ -33,7 +29,7 @@ public class Transaction2Repository {
 
 	public Transaction2 findOne(String id) {
 		Transaction2 transaction2 = null;
-		SerializableDocument found = lookupBucket.get(id, SerializableDocument.class);
+		SerializableDocument found = saveBucket.get(id, SerializableDocument.class);
 		transaction2 = ((Transaction2) found.content());
 		return transaction2;
 	}
@@ -47,7 +43,7 @@ public class Transaction2Repository {
 
 	public BinaryDocument findBuff(String id) {
 
-		BinaryDocument transaction2 = lookupBucket.get(id, BinaryDocument.class);
+		BinaryDocument transaction2 = saveBucket.get(id, BinaryDocument.class);
 		return transaction2;
 
 	}

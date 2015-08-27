@@ -1,6 +1,7 @@
 package com.kapustin.couchbase.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.couchbase.client.java.Bucket;
@@ -11,6 +12,7 @@ import com.kapustin.couchbase.entity.Transaction3;
 public class Transaction3Repository {
 
 	@Autowired
+	@Qualifier("saveBucket")
 	private Bucket bucket;
 	
 	public Transaction3 saveSerialized(Transaction3 doc) {

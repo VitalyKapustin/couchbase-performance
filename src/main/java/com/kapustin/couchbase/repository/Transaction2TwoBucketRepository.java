@@ -16,7 +16,7 @@ import com.kapustin.couchbase.entity.Transaction2;
  * Created by v.kapustin on Aug 19, 2015.
  */
 @Component
-public class Transaction2Repository {
+public class Transaction2TwoBucketRepository {
 	
 	@Autowired
 	@Qualifier("lookupBucket")
