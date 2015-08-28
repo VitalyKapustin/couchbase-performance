@@ -19,18 +19,18 @@ public class Transaction2 implements Serializable {
 		this.id = id;
 	}	
 	
-	private String[] data;
+	private byte[] data;
 	
 	@Override
 	public String toString() {		
         return new StringBuilder("transaction[id=").append(getId()).append("]").toString();
     }
 
-	public String[] getData() {
+	public byte[] getData() {
 		return data;
 	}
 
-	public void setData(String[] data) {
+	public void setData(byte[] data) {
 		this.data = data;
 	}				
 }

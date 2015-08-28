@@ -24,9 +24,9 @@ import com.kapustin.couchbase.utils.Transaction3Generator;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringConfiguration.class, CouchbaseConfiguration.class })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CouchbasePerformanceTest3 {
+public class CouchbasePerformanceTest5 {
 
-	private final static int COUNT = 3000;
+	private final static int COUNT = 500;
 	
 	private final StopWatch stopWatch = new StopWatch();
 	
@@ -39,7 +39,7 @@ public class CouchbasePerformanceTest3 {
 	private Transaction3Repository transaction3Repository;
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void stage1TestSuite() {
 		runTests(1, 1024);
 	}
@@ -51,7 +51,7 @@ public class CouchbasePerformanceTest3 {
 	}
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void stage3TestSuite() {
 		runTests(3, 1024 * 100);
 	}
@@ -60,8 +60,8 @@ public class CouchbasePerformanceTest3 {
 		System.out.println("------------------- stage" + stageNum + "TestSuite -------------------");
 		int offset = (stageNum - 1) * COUNT;
 		try {
-//			insertLookupJsonTest(offset, dataSize);
-			insertLookupSerializedTest(offset, dataSize);
+			insertLookupJsonTest(offset, dataSize);
+//			insertLookupSerializedTest(offset, dataSize);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}

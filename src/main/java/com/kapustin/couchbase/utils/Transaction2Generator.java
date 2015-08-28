@@ -11,19 +11,18 @@ import com.kapustin.couchbase.entity.Transaction2;
  */
 public class Transaction2Generator {
 		
-	private static String[] data;
 	private static byte[] byteData;
 	
 	public static Transaction2 generate(int offset, int index, int dataSize) {		
 		Transaction2 transaction = new Transaction2();				
-		if (data == null || (data != null && data.length < dataSize / 2)) {
-			data = new String[dataSize / 2];
-			for (int i = 0; i < dataSize / 2; i++) {
-				data[i] = "b";
-			}
+		if (byteData == null || (byteData != null && byteData.length < dataSize)) {
+			byteData = new byte[dataSize];
+			for (int i = 0; i < dataSize; i++) {
+				byteData[i] = 127;
+			}			
 		}
 		transaction.setId(UUID.randomUUID().toString());
-		transaction.setData(data);
+		transaction.setData(byteData);
 		return transaction;
 	}
 	

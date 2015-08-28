@@ -21,12 +21,15 @@ import com.kapustin.couchbase.repository.Transaction3CrudRepository;
 import com.kapustin.couchbase.repository.Transaction3Repository;
 import com.kapustin.couchbase.utils.Transaction3Generator;
 
+/**
+ * Created by v.kapustin on Aug 27, 2015.
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { SpringConfiguration.class, CouchbaseConfiguration.class })
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class CouchbasePerformanceTest3 {
-
-	private final static int COUNT = 3000;
+public class CouchbasePerformanceTest4 {
+	
+	private final static int COUNT = 10;
 	
 	private final StopWatch stopWatch = new StopWatch();
 	
@@ -48,13 +51,7 @@ public class CouchbasePerformanceTest3 {
 	@Ignore
 	public void stage2TestSuite() {
 		runTests(2, 1024 * 20);
-	}
-	
-	@Test
-//	@Ignore
-	public void stage3TestSuite() {
-		runTests(3, 1024 * 100);
-	}
+	}	
 	
 	private void runTests(int stageNum, int dataSize) {
 		System.out.println("------------------- stage" + stageNum + "TestSuite -------------------");
