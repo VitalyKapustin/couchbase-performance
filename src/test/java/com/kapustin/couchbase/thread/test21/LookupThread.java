@@ -1,6 +1,7 @@
 package com.kapustin.couchbase.thread.test21;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -31,10 +32,11 @@ public class LookupThread implements Runnable {
 
 	@Override
 	public void run() {		
-		List<String> ids = new ArrayList<>(count);
+		List<String> ids = new ArrayList<>(count);		
 		for (int i = 0; i < count; i++) {
-			ids.add(getRandomId());
+			ids.add(String.valueOf(i + 1));
 		}
+		Collections.shuffle(ids);
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		for (int i = 0; i < count; i++) {
@@ -46,9 +48,5 @@ public class LookupThread implements Runnable {
 		}
 		stopWatch.stop();
 		System.out.println("LookupThread time: " + (double)stopWatch.getNanoTime() / (double)count);
-	}
-	
-	private String getRandomId() {
-		return String.valueOf(fromId + rnd.nextInt(count));
 	}
 }

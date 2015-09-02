@@ -31,13 +31,11 @@ public class InsertThread implements Runnable {
 	}
 	
 	@Override
-	public void run() {
-		List<String> ids = new ArrayList(count);
+	public void run() {		
 		List<Transaction2> transactions = new ArrayList(count);
-		for (int i = fromId, index = 0; i <= fromId + count; i++, index++) {
-			ids.add(String.valueOf(i));
+		for (int i = fromId, index = 0; i < fromId + count; i++, index++) {			
 			Transaction2 transaction2 = Transaction2Generator.generate(0, 0, dataSize);
-			transaction2.setId(ids.get(index));
+			transaction2.setId(String.valueOf(i));
 			transactions.add(transaction2);
 		}
 		StopWatch stopWatch = new StopWatch();

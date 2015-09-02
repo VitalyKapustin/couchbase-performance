@@ -43,7 +43,7 @@ public class CouchbasePerformanceTest21 {
 	private Transaction2TwoBucketRepository transaction2TwoBucketRepository;	
 	
 	@Test
-//	@Ignore
+	@Ignore
 	public void stage1TestSuite() {
 		runTests(1, 1024);
 	}
@@ -55,7 +55,7 @@ public class CouchbasePerformanceTest21 {
 	}
 	
 	@Test
-	@Ignore
+//	@Ignore
 	public void stage5TestSuite() {
 		runTests(5, 1024 * 100);
 	}	
@@ -64,16 +64,16 @@ public class CouchbasePerformanceTest21 {
 		System.out.println("------------------- stage" + stageNum + "TestSuite -------------------");
 		int offset = (stageNum - 1) * COUNT;
 		try {
-			prepareDB(COUNT / 2, dataSize);
-			insertLookupUsingOneBucketTest(dataSize);
-//			insertLookupUsingTwoBucketsTest(dataSize);
+			prepareDB(COUNT, dataSize);
+//			insertLookupUsingOneBucketTest(dataSize);
+			insertLookupUsingTwoBucketsTest(dataSize);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}		
 	
 	private void prepareDB(int count, int dataSize) {
-		InsertThread insertThread = new InsertThread(COUNT / 2, dataSize, 1, transaction2OneBucketRepository, null);
+		InsertThread insertThread = new InsertThread(COUNT, dataSize, 1, transaction2OneBucketRepository, null);
 		ExecutorService taskExecutor = Executors.newFixedThreadPool(1);
 		taskExecutor.execute(insertThread);
 		taskExecutor.shutdown();
@@ -85,8 +85,8 @@ public class CouchbasePerformanceTest21 {
 	
 	public void insertLookupUsingOneBucketTest(int dataSize) throws InterruptedException {
 		System.out.println("------------------- insertLookupUsingOneBucketTest -------------------");
-		LookupThread lookupThread = new LookupThread(COUNT / 2, 1, transaction2OneBucketRepository, null);
-		InsertThread insertThread = new InsertThread(COUNT / 2, dataSize, COUNT / 2, transaction2OneBucketRepository, null);
+		LookupThread lookupThread = new LookupThread(COUNT, 1, transaction2OneBucketRepository, null);
+		InsertThread insertThread = new InsertThread(COUNT, dataSize, 1, transaction2OneBucketRepository, null);
 		ExecutorService taskExecutor = Executors.newFixedThreadPool(2);
 		taskExecutor.execute(lookupThread);
 		taskExecutor.execute(insertThread);
@@ -96,12 +96,15 @@ public class CouchbasePerformanceTest21 {
 	
 	public void insertLookupUsingTwoBucketsTest(int dataSize) throws InterruptedException {
 		System.out.println("------------------- insertLookupUsingTwoBucketsTest -------------------");
-		LookupThread lookupThread = new LookupThread(COUNT / 2, 1, transaction2OneBucketRepository,transaction2TwoBucketRepository);
-		InsertThread insertThread = new InsertThread(COUNT / 2, dataSize, COUNT / 2, transaction2OneBucketRepository, transaction2TwoBucketRepository);
-		ExecutorService taskExecutor = Executors.newFixedThreadPool(2);
-		taskExecutor.execute(lookupThread);
-		taskExecutor.execute(insertThread);
-		taskExecutor.shutdown();
-		taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.HOURS);
+		LookupThread lookupThread = new LookupThread(COUNT, 1, transaction2OneBucketRepository,transaction2TwoBucketRepository);
+		InsertThread insertThread = new InsertThread(COUNT, dataSize, 1, transaction2OneBucketRepository, transaction2TwoBucketRepository);
+//		ExecutorService taskExecutor = Executors.newFixedThreadPool(2);	
+		Thread t1 = new Thread(lookupThread);
+		t1.start();
+		t1.join();		
+//		taskExecutor.execute(lookupThread);
+//		taskExecutor.execute(insertThread);
+//		taskExecutor.shutdown();
+//		taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.HOURS);
 	}
 }

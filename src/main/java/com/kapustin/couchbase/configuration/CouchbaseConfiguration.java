@@ -13,6 +13,8 @@ import org.springframework.data.couchbase.repository.config.EnableCouchbaseRepos
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.CouchbaseCluster;
+import com.couchbase.client.java.env.CouchbaseEnvironment;
+import com.couchbase.client.java.env.DefaultCouchbaseEnvironment;
 
 /**
  * Created by v.kapustin on Aug 14, 2015.
@@ -31,16 +33,27 @@ public class CouchbaseConfiguration extends AbstractCouchbaseConfiguration {
 	@Value("${couchbase.bucket.password}")
 	private String bucketPassword;
 
+	@Bean(name = "bucket")
+	public Bucket getBucket() {
+		Cluster cluster = CouchbaseCluster.create(host);
+		Bucket bucket = cluster.openBucket(bucketName, bucketPassword);		
+		return bucket;
+	}
+	
 	@Bean(name = "lookupBucket")
 	public Bucket getLookupBucket() {
 		Cluster cluster = CouchbaseCluster.create(host);
-		Bucket bucket = cluster.openBucket(bucketName, bucketPassword);
+		Bucket bucket = cluster.openBucket(bucketName, bucketPassword);		
 		return bucket;
 	}
 	
 	@Bean(name = "saveBucket")
 	public Bucket getSaveBucket() {
-		Cluster cluster = CouchbaseCluster.create(host);
+		CouchbaseEnvironment env = DefaultCouchbaseEnvironment
+				.builder()
+				.kvEndpoints(2)				
+				.build();
+		Cluster cluster = CouchbaseCluster.create(env, host);
 		Bucket bucket = cluster.openBucket(bucketName, bucketPassword);
 		return bucket;
 	}

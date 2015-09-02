@@ -30,7 +30,7 @@ import com.kapustin.couchbase.utils.Transaction2Generator;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CouchbasePerformanceTest2 {
 	
-	private final static int COUNT = 5000;
+	private final static int COUNT = 1000;
 	
 	private final StopWatch stopWatch = new StopWatch();
 	
@@ -85,8 +85,8 @@ public class CouchbasePerformanceTest2 {
 		System.out.println("------------------- stage" + stageNum + "TestSuite -------------------");
 		int offset = (stageNum - 1) * COUNT;
 		try {
-//			insertLookupTest(offset, dataSize);
-			insertLookupBinaryTest(offset, dataSize);
+			insertLookupTest(offset, dataSize);
+//			insertLookupBinaryTest(offset, dataSize);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -124,7 +124,7 @@ public class CouchbasePerformanceTest2 {
 			transaction2Repository.save(transactions.get(i));						
 		}		
 		stopWatch.stop();
-		System.out.println(new StringBuilder("insert transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
+		System.out.println(new StringBuilder("insert transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getTime() / (double)COUNT));
 		stopWatch.reset();
 		Thread.currentThread().sleep(30000);
 		
@@ -134,7 +134,7 @@ public class CouchbasePerformanceTest2 {
 			Transaction2 transaction = transaction2Repository.findOne(transactions.get(i).getId());
 		}
 		stopWatch.stop();
-		System.out.println(new StringBuilder("lookup transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
+		System.out.println(new StringBuilder("lookup transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getTime() / (double)COUNT));
 		stopWatch.reset();
 	}
 	

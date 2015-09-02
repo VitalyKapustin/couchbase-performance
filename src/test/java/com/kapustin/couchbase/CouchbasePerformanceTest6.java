@@ -1,7 +1,11 @@
 package com.kapustin.couchbase;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.lang3.time.StopWatch;
 import org.junit.FixMethodOrder;
@@ -19,6 +23,7 @@ import com.kapustin.couchbase.configuration.CouchbaseConfiguration;
 import com.kapustin.couchbase.configuration.SpringConfiguration;
 import com.kapustin.couchbase.entity.Transaction2;
 import com.kapustin.couchbase.repository.Transaction2GZIPRepository;
+import com.kapustin.couchbase.repository.Transaction2Repository;
 import com.kapustin.couchbase.utils.Transaction2Generator;
 
 /**
@@ -29,12 +34,15 @@ import com.kapustin.couchbase.utils.Transaction2Generator;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CouchbasePerformanceTest6 {
 
-	private final static int COUNT = 500;
+	private final static int COUNT = 50000;
 	
 	private final StopWatch stopWatch = new StopWatch();
 	
 	@Autowired
-	private Transaction2GZIPRepository transaction2Repository;
+	private Transaction2Repository transaction2Repository;
+	
+	@Autowired
+	private Transaction2GZIPRepository transaction2GZIPRepository;
 	
 	@Test
 //	@Ignore
@@ -58,8 +66,8 @@ public class CouchbasePerformanceTest6 {
 		System.out.println("------------------- stage" + stageNum + "TestSuite -------------------");
 		int offset = (stageNum - 1) * COUNT;
 		try {
-			insertLookupTest(offset, dataSize);
-//			insertLookupSerializedTest(offset, dataSize);
+//			insertLookupTest(offset, dataSize);
+			insertLookupGZipedTest(offset, dataSize);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -90,6 +98,31 @@ public class CouchbasePerformanceTest6 {
 		stopWatch.reset();
 	}
 	
+	public void insertLookupGZipedTest(int offset, int dataSize) throws InterruptedException {
+		System.out.println("------------------- insertTest -------------------");
+		List<Transaction2> transactions = new ArrayList<>(COUNT);
+		for (int i = 0; i < COUNT; i++) {
+			transactions.add(Transaction2Generator.generate(offset, i, dataSize));
+		}							
+		stopWatch.start();
+		for (int i = 0; i < COUNT; i++) {							
+			transaction2GZIPRepository.save(transactions.get(i));
+		}		
+		stopWatch.stop();						
+		System.out.println(new StringBuilder("insert transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));		
+		stopWatch.reset();
+		Thread.currentThread().sleep(30000);
+		
+		System.out.println("------------------- lookupTest -------------------");				
+		stopWatch.start();
+		for (int i = 0; i < COUNT; i++) {			
+			Transaction2 transaction = transaction2GZIPRepository.findOne(transactions.get(i).getId());
+		}
+		stopWatch.stop();
+		System.out.println(new StringBuilder("lookup transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
+		stopWatch.reset();
+	}
+	
 	public void insertLookupBinaryTest(int offset, int dataSize) throws InterruptedException {
 		System.out.println("------------------- insertTest -------------------");
 		List<ByteBuf> transactions = new ArrayList<ByteBuf>(COUNT);
@@ -99,7 +132,7 @@ public class CouchbasePerformanceTest6 {
 		List<String> ids = new ArrayList<>(COUNT);
 		stopWatch.start();
 		for (int i = 0; i < COUNT; i++) {			
-			ids.add(transaction2Repository.save(transactions.get(i)));						
+			ids.add(transaction2GZIPRepository.save(transactions.get(i)));						
 		}		
 		stopWatch.stop();
 		System.out.println(new StringBuilder("insert transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));		
@@ -109,7 +142,7 @@ public class CouchbasePerformanceTest6 {
 		System.out.println("------------------- lookupTest -------------------");			
 		stopWatch.start();
 		for (int i = 0; i < COUNT; i++) {			
-			BinaryDocument transaction = transaction2Repository.findBuff(ids.get(i));
+			BinaryDocument transaction = transaction2GZIPRepository.findBuff(ids.get(i));
 		}
 		stopWatch.stop();
 		System.out.println(new StringBuilder("lookup transaction - data size: ").append(dataSize / 1024).append("kbytes, time: ").append((double)stopWatch.getNanoTime() / (double)COUNT));
